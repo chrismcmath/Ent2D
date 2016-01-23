@@ -4,12 +4,9 @@ using System.Collections.Generic;
 
 using Ent2D.Config;
 using Ent2D.Conflict;
+using Ent2D.Events;
 using Ent2D.Events.Listeners;
 using Ent2D.Utils;
-
-
-//TODO: get rid - dependancy is in SwitchBehaviour
-using Cockateers.Utils; 
 
 //TODO: Event Listeners
 namespace Ent2D {
@@ -19,10 +16,18 @@ namespace Ent2D {
         //TODO: Improve this system
         public bool Logging = false;
         public string ConfigRecipe = "Chris";
-        public ControllerUtils.PlayerNumbers PlayerNumber;
         public EntController Aggressor;
 
-        protected EntConfig _Config;
+        private EntConfig _Config;
+        public EntConfig Config {
+            get {
+                if (_Config == null) {
+                    LoadConfig();
+                }
+                return _Config;
+            }
+        }
+
 
         private Vector2 _FacingVector = Vector2.right;
         public Vector2 FacingVector {
@@ -74,24 +79,30 @@ namespace Ent2D {
             }
         }
 
-        protected Dictionary<string, EntForm> _FormCache
-            = new Dictionary<string, EntForm>();
+        protected Dictionary<string, EntForm> _FormCache;
+        public Dictionary<string, EntForm> FormCache {
+            get {
+                if (_FormCache == null) {
+                    _FormCache = new Dictionary<string, EntForm>();
+                    foreach (EntForm form in GetComponentsInChildren<EntForm>()) {
+                        _FormCache.Add(form.name, form);
+                        form.gameObject.SetActive(false);
+                    }
+                }
+                return _FormCache;
+            }
+        }
 
         private List<EntListener> _Listeners =
             new List<EntListener>();
 
-        public void Awake() {
-            LoadConfig();
-        }
-
         public void Start() {
-            CacheForms();
             LoadInitialBehaviour();
 
             _Listeners.AddRange(GetComponentsInChildren<EntListener>());
 
             //TODO: Should be set elsewhere
-            GetComponent<Rigidbody2D>().mass = _Config.Mass;
+            GetComponent<Rigidbody2D>().mass = Config.Mass;
         }
 
         public void Update() {
@@ -106,6 +117,7 @@ namespace Ent2D {
             }
         }
 
+        public virtual void OnCustomCollision(EntController otherController) {}
         protected abstract void LoadInitialBehaviour();
 
         //TODO: Something smarter here
@@ -121,8 +133,12 @@ namespace Ent2D {
 
             EntForm prevForm = CurrentForm;
 
-            CurrentForm = EntUtils.LookUpForm<T>(_FormCache);
+            EventUtils.FireSwitchOut(CurrentBehaviour);
             CurrentBehaviour = EntUtils.SwitchTo<T>(gameObject);
+            CurrentBehaviour.Init();
+            EventUtils.FireSwitchIn(CurrentBehaviour);
+
+            CurrentForm = EntUtils.GetFormFromBehaviour(CurrentBehaviour, FormCache);
 
             if (prevForm != null && prevForm != CurrentForm) {
                 prevForm.gameObject.SetActive(false);
@@ -149,15 +165,6 @@ namespace Ent2D {
 
             if (_Config == null) {
                 Debug.LogError("[AVATAR] Couldn't find config with name " + ConfigRecipe);
-            }
-        }
-
-        private void CacheForms() {
-            EntForm[] forms = GetComponentsInChildren<EntForm>();
-
-            foreach (EntForm form in forms) {
-                _FormCache.Add(form.name, form);
-                form.gameObject.SetActive(false);
             }
         }
     }

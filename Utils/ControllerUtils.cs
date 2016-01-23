@@ -3,7 +3,17 @@ using System.Collections;
 
 namespace Ent2D.Utils {
     public static class ControllerUtils {
-        public enum PlayerNumbers { NONE=0, PLAYER1, PLAYER2, PLAYER3, PLAYER4 }
+        public enum PlayerNumbers {
+            NONE=0,
+            PLAYER1,
+            PLAYER2,
+            PLAYER3,
+            PLAYER4,
+            PLAYER5,
+            PLAYER6,
+            PLAYER7,
+            PLAYER8
+        }
 
         //NOTE: Keyboard controls for debugging
         public const int KEYBOARD_PLAYER = 1;
@@ -25,6 +35,10 @@ namespace Ent2D.Utils {
         public readonly static int[] XBOX_ACTION2_BUTTONS_WIN = new int[] {4, 5};
         public readonly static int[] XBOX_PAUSE_BUTTONS_OSX = new int[] {9};
         public readonly static int[] XBOX_PAUSE_BUTTONS_WIN = new int[] {7};
+
+        public static PlayerNumbers GetPlayerNumber(int index) {
+            return (PlayerNumbers) index;
+        }
 
         public static bool Action1(PlayerNumbers playerNumber) {
             return Action1((int) playerNumber);

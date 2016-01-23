@@ -39,7 +39,6 @@ namespace Ent2D.Events.Listeners {
             }
 
             if (action.ChangeColor) {
-                Debug.LogFormat("change color");
                 _Color = action.StartColor;
                 _ParticleSystem.startColor = _Color;
             }

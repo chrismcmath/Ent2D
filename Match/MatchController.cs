@@ -1,9 +1,12 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
 using Ent2D;
+using Ent2D.Core;
 using Ent2D.Conflict;
 using Ent2D.Maps;
 using Ent2D.Utils;
@@ -11,8 +14,7 @@ using Ent2D.Utils;
 namespace Ent2D.Match {
     public class MatchController : MonoBehaviour {
         public const float AVATAR_SPACING = 10f;
-
-        public GameObject PlayerPrefab;
+        public const string PLAYER_PREFAB_PATH = "Avatars/PhysAvatar";
 
         private MatchContext _Context;
 
@@ -27,26 +29,30 @@ namespace Ent2D.Match {
 
         private MapConfig _Map;
         public MapConfig Map {
-            get { return _Map; }
+            get {
+                if (_Map == null) {
+                    _Map = FindObjectOfType<MapConfig>();
+                }
+                return _Map;
+            }
         }
 
-        public void Awake() {
-            _Context = GetComponent<MatchContext>();
-        }
 
         public void Start() {
-            ResetAll();
+            _Context = Global.Instance.Context;
         }
 
         public void Update() {
-            UpdateOutOfBoundsPoints();
+            if (_Context.MatchInProgress) {
+                UpdateOutOfBoundsPoints();
+            }
         }
 
         public void LateUpdate() {
             ConflictClinic.ResolveConflicts();
         }
 
-        public void ResetAll() {
+        public void LoadMatch() {
             _Avatars = new Dictionary<ControllerUtils.PlayerNumbers, EntController>();
             RemoveAllChildren();
 
@@ -66,8 +72,8 @@ namespace Ent2D.Match {
             int i = 0;
             int count = _Context.PlayerNumbers.Count;
             foreach (ControllerUtils.PlayerNumbers playerNumber in _Context.PlayerNumbers) {
-                Transform avatarT = UnityUtils.InstantiatePrefab(PlayerPrefab, root, playerNumber.ToString(), GetStartPosition(i++, count));
-                EntController entCont = avatarT.GetComponent<EntController>();
+                Transform avatarT = UnityUtils.InstantiatePrefab(PLAYER_PREFAB_PATH, root, playerNumber.ToString(), GetStartPosition(i++, count));
+                EntPlayableController entCont = avatarT.GetComponent<EntPlayableController>();
                 AddAvatar(playerNumber, entCont);
 
                 //avatCont.SetPlayerIdentity(new Color());
@@ -77,14 +83,10 @@ namespace Ent2D.Match {
         private void CreateMap() {
             Transform root = UnityUtils.CreateEmptyChild("Map", transform);
 
-            Transform mapPrefab = UnityUtils.InstantiatePrefab(_Context.MapKey, root, _Context.MapKey);
-            _Map = mapPrefab.GetComponent<MapConfig>();
-            if (_Map == null) {
-                Debug.LogError("Map " + _Context.MapKey + " does not have a MapConfig attached");
-            }
+            SceneManager.LoadScene(_Context.MapName, LoadSceneMode.Additive);
         }
 
-        private void AddAvatar(ControllerUtils.PlayerNumbers playerNumber, EntController cont) {
+        private void AddAvatar(ControllerUtils.PlayerNumbers playerNumber, EntPlayableController cont) {
             cont.PlayerNumber = playerNumber;
             _Avatars.Add(playerNumber, cont);
         }
@@ -96,14 +98,16 @@ namespace Ent2D.Match {
 
         private void UpdateOutOfBoundsPoints() {
             foreach (EntController avatarCont in _Avatars.Values.ToList()) {
-                if (_Map.OutOfBounds(avatarCont.transform.position)) {
+
+                //TODO: Timing issue here, resolve when match logic more robust
+                if (Map == null) {
+                    return;
+                }
+
+                if (Map.OutOfBounds(avatarCont.transform.position)) {
                     avatarCont.transform.position = Vector2.zero;
 
                     avatarCont.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-
-                    //TODO: coupled
-                    //avatarCont.SwitchBehaviour<InvulnerableBehaviour>(); 
-                    //avatarCont.Aggressor = null;
                 }
             }
         }

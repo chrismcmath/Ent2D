@@ -32,5 +32,13 @@ namespace Ent2D.Utils {
             t.localRotation = Quaternion.identity;
             return t;
         }
+
+        public static T ForceGetComponent<T>(GameObject go) where T : MonoBehaviour {
+            T component = go.GetComponent<T>();
+            if (component == null) {
+                component = go.AddComponent<T>();
+            }
+            return component;
+        }
     }
 }

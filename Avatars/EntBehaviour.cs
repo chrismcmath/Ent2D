@@ -1,22 +1,42 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
 
-using Ent2D.ViewControllers;
+using UnityEngine;
+
 using Ent2D.Config;
 using Ent2D.Conflict;
 using Ent2D.Utils;
 
 namespace Ent2D {
     public abstract class EntBehaviour : MonoBehaviour {
-        protected EntConfig _Config;
-        protected EntController _Controller;
-        protected Rigidbody2D _Rigidbody;
+        private EntConfig _Config;
+        public EntConfig Config {
+            get {
+                if (_Config == null) {
+                    _Config = Controller.Config;
+                }
+                return _Config;
+            }
+        }
 
-        protected bool _SwitchedOut = false;
-        private bool _Initted = false;
+        private EntController _Controller;
+        public EntController Controller {
+            get {
+                if (_Controller == null) {
+                    _Controller = GetComponent<EntController>();
+                }
+                return _Controller;
+            }
+        }
 
-        public virtual int ConflictIndex {
-            get { return 0; }
+        private Rigidbody2D _Rigidbody;
+        public Rigidbody2D Rigidbody {
+            get {
+                if (_Rigidbody == null) {
+                    _Rigidbody = GetComponent<Rigidbody2D>();
+                }
+                return _Rigidbody;
+            }
         }
 
         protected float _TimeActive = 0f;
@@ -24,55 +44,38 @@ namespace Ent2D {
             get { return _TimeActive; }
         }
 
-        public virtual void OnSwitchOut() {}
+        protected bool _SwitchedOut = false;
+        protected List<Type> _RequiredComponents = new List<Type>();
+
+        //TODO: Not sure I like this
+        private bool _Initted = false;
+
+        public virtual int ConflictIndex {
+            get { return 0; }
+        }
+
+        public virtual string FormKey {
+            get { 
+                Debug.LogErrorFormat("[Behaviour] FormKey not set.");
+                return "";
+            }
+        }
+
         public virtual void OnWinConflict(BattleConflictResolution r) {}
         public virtual void OnLoseConflict(BattleConflictResolution r) {}
         public virtual void OnDrawConflict(BattleConflictResolution r) {}
 
-        protected abstract void UpdateContinuousInput();
-        protected abstract void UpdateRigidbody();
-
-        protected virtual void OnAction1Down() {}
-        protected virtual void OnAction1Up() {}
-        protected virtual void OnAction2Down() {}
-        protected virtual void OnAction2Up() {}
-
+        public virtual void OnSwitchOut() {}
         protected virtual void OnSwitchIn() {}
 
+        protected virtual void UpdateRigidbody() {}
+
         public void Start() {
-            Init();
+            AppendRequiredComponents(_RequiredComponents);
             OnSwitchIn();
         }
 
-        public virtual void UpdateBehaviour() {
-            if (SetupError()) {
-                return;
-            }
-
-            _TimeActive += Time.deltaTime;
-
-            UpdateInput();
-        }
-
-        public void FixedUpdateBehaviour() {
-            if (!IsSetup()) {
-                return;
-            }
-
-            if (!_SwitchedOut) {
-                UpdateRigidbody();
-            }
-
-            if (!_SwitchedOut) {
-                UpdateContinuousInput();
-            }
-        }
-
-        public virtual bool ResolveConflictTie(EntBehaviour a, EntBehaviour b) {
-            return false;
-        }
-
-        protected virtual void Init() {
+        public virtual void Init() {
             if (SetupError()) {
                 return;
             }
@@ -80,17 +83,40 @@ namespace Ent2D {
             _Initted = true;
         }
 
-        protected void FireEvent(string evtKey) {
-            if (_Controller != null) {
-                _Controller.FireEvent(evtKey);
+        public virtual void UpdateBehaviour() {
+            if (!IsSetup()) return;
+
+            _TimeActive += Time.deltaTime;
+        }
+
+        public virtual void FixedUpdateBehaviour() {
+            if (!IsSetup()) return;
+
+            if (!_SwitchedOut) {
+                UpdateRigidbody();
+            }
+        }
+
+        public virtual bool ResolveConflictTie(EntBehaviour a, EntBehaviour b) {
+            return false;
+        }
+
+        public void FireEvent(string evtKey) {
+            if (Controller != null) {
+                Controller.FireEvent(evtKey);
             } else {
                 Debug.LogErrorFormat("[EntBehaviour] Controller not setup in {0}", this.GetType());
             }
         }
 
+        protected virtual void AppendRequiredComponents(List<Type> requiredComponents) {
+            requiredComponents.Add(typeof(EntController));
+            requiredComponents.Add(typeof(Rigidbody2D));
+        }
+
         protected void SwitchBehaviour<T>() where T : EntBehaviour {
-            if (_Controller != null) {
-                _Controller.SwitchBehaviour<T>(); 
+            if (Controller != null) {
+                Controller.SwitchBehaviour<T>(); 
                 _SwitchedOut = true;
             } else {
                 Debug.LogErrorFormat("[EntBehaviour] Controller not setup in {0}", this.GetType());
@@ -98,75 +124,18 @@ namespace Ent2D {
         }
 
         protected bool SetupError() {
-            bool hasError = !HasRigidbody() || !HasConfig() || !HasController();
-            if (hasError) {
-                Debug.LogErrorFormat(@"[EntBehaviour] Could not load necessary controllers
-                        HasRigidbody: {0},
-                        HasConfig: {1},
-                        HasController: {2}",
-                        HasRigidbody(), HasConfig(), HasController());
-
+            foreach (Type type in _RequiredComponents) {
+                if (GetComponent(type) == null) {
+                    Debug.LogErrorFormat("[Ent2D] {0} requires type {1}, update the prefab.",
+                            gameObject.name, type.ToString());
+                    return true;
+                }
             }
-            return hasError;
-        }
-
-        protected bool HasConfig() {
-            if (_Config != null) {
-                return true;
-            }
-
-            return TryGetConfig();
-        }
-
-        protected bool TryGetConfig() {
-            _Config = GetComponentInChildren<EntConfig>();
-            if (_Config == null) {
-                Debug.LogError(string.Format("Ent {0} does not have an EntConfig attached", gameObject.name));
-                return false;
-            }
-            return true;
-        }
-
-        protected bool HasRigidbody() {
-            if (_Rigidbody != null) {
-                return true;
-            }
-
-            return TryGetRigidbody();
-        }
-
-        protected bool TryGetRigidbody() {
-            _Rigidbody = GetComponent<Rigidbody2D>();
-            return _Rigidbody != null;
-        }
-
-        protected bool HasController() {
-            if (_Controller != null) {
-                return true;
-            }
-
-            return TryGetController();
-        }
-
-        protected bool TryGetController() {
-            _Controller = GetComponent<EntController>();
-            return _Controller != null;
+            return false;
         }
 
         private bool IsSetup() {
             return _Initted && !SetupError();
-        }
-
-        private void UpdateInput() {
-            if (ControllerUtils.Action1Down(_Controller.PlayerNumber)) {
-                OnAction1Down();
-            } else if (ControllerUtils.Action1Up(_Controller.PlayerNumber)) {
-                OnAction1Up();
-            } else if (ControllerUtils.Action2Down(_Controller.PlayerNumber)) {
-                OnAction2Down();
-            } else if (ControllerUtils.Action2Up(_Controller.PlayerNumber)) {
-                OnAction2Up();
-            }
         }
     }
 }

@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using Ent2D.Core;
+using Ent2D.Match;
 using Ent2D.Utils;
 
-namespace Ent2D.Match {
+namespace Ent2D.Camera {
     public class MatchCameraController : MatchComponent {
         public float Padding = 2f;
         public float Dampening = 0.1f;
@@ -14,13 +16,14 @@ namespace Ent2D.Match {
             get { return _Distance; }
         }
 
+        private MatchContext _Context;
         private UnityEngine.Camera _Camera;
         private List<Vector2> _PointsOfInterest = new List<Vector2>();
         private Bounds _DebugBounds;
 
         protected override void Init() {
-            base.Init();
             _Camera = GetComponent<UnityEngine.Camera>();
+            _Context = Global.Instance.Context;
 
             if (_Camera == null) {
                 Debug.LogError("Could not find camera");
@@ -28,13 +31,15 @@ namespace Ent2D.Match {
         }
 
         public void Update() {
-            GetPointsOfInterest();
+            if (_Context.MatchInProgress) {
+                GetPointsOfInterest();
+            }
         }
 
         private void GetPointsOfInterest() {
             _PointsOfInterest = new List<Vector2>();
 
-            foreach (EntController cont in _Controller.Avatars) {
+            foreach (EntController cont in Controller.Avatars) {
                 _PointsOfInterest.Add(BoundPoint(cont.transform.position));
             }
 
@@ -63,12 +68,11 @@ namespace Ent2D.Match {
 
             //http://docs.unity3d.com/Manual/FrustumSizeAtDistance.html
             float distance = frustumHeight * 0.5f / Mathf.Tan(_Camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-
             return distance;
         }
 
         private Vector2 BoundPoint(Vector2 position) {
-            Bounds mapBounds = _Controller.Map.Bounds;
+            Bounds mapBounds = Controller.Map.Bounds;
 
             return new Vector2(
                     Mathf.Min(mapBounds.max.x, Mathf.Max(mapBounds.min.x, position.x)),

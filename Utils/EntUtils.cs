@@ -1,15 +1,13 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using Ent2D;
 
-//TODO: get rid 
-using Cockateers.Utils; 
-
 namespace Ent2D.Utils {
     public static class EntUtils {
-        public enum ColliderType {GROUND=0, SUPPORT, ATTACK, TARGET}
+        public enum ColliderType {GROUND=0, SUPPORT, ATTACK, TARGET, CUSTOM}
 
         //TODO: are we still using this?
         public static EntBehaviour SwitchTo<T>(GameObject go) where T : EntBehaviour {
@@ -25,15 +23,18 @@ namespace Ent2D.Utils {
             //return AvatarUtils.AddNewBehaviour(behaviour, go);
         }
 
-        public static EntForm LookUpForm<T>(Dictionary<string, EntForm> formCache) where T : EntBehaviour {
-            //TODO: refactor
-            string formName = AvatarUtils.LookUpFormName<T>();
-            if (!formCache.ContainsKey(formName)) {
-                Debug.LogErrorFormat("Could load form from behaviour {0}", typeof(T));
+        public static EntForm GetFormFromBehaviour(EntBehaviour behaviour, Dictionary<string, EntForm> formCache) {
+            string formKey = behaviour.FormKey;
+            if (!formCache.ContainsKey(formKey)) {
+                string cachedForms = "";
+                foreach (string fk in formCache.Keys.ToList()) {
+                    cachedForms += string.Format("{0},", fk);
+                }
+                Debug.LogErrorFormat("Could load form from behaviour {0}, key: {1}, cachedForms: {2}", behaviour, formKey, cachedForms);
                 return null;
             }
 
-            return formCache[formName];
+            return formCache[formKey];
         }
 
         public static Vector2 GetForwardVector(EntController cont) {

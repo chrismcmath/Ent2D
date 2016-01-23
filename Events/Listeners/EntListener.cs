@@ -27,6 +27,8 @@ namespace Ent2D.Events.Listeners {
         }
 
         public void OnEvent(string evtKey) {
+            CheckModel();
+
             string santisedKey = EntUtils.SanitiseEventKey(evtKey);
             if (_ActionModel.ContainsKey(santisedKey)) {
                 foreach (EntAction action in _ActionModel[santisedKey]) {

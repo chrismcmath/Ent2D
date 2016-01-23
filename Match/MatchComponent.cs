@@ -1,20 +1,24 @@
 using UnityEngine;
 using System.Collections;
 
-namespace Ent2D.Match {
-    public class MatchComponent : MonoBehaviour {
-        protected MatchController _Controller; 
+using Ent2D.Core;
 
-        public void Awake() {
+namespace Ent2D.Match {
+    public abstract class MatchComponent : MonoBehaviour {
+        protected MatchController _Controller; 
+        public MatchController Controller {
+            get {
+                if (_Controller == null) {
+                    _Controller = Global.Instance.Context.GetComponent<MatchController>();
+                }
+                return _Controller;
+            }
+        }
+
+        public void Start() {
             Init();
         }
 
-        protected virtual void Init() {
-            _Controller = FindObjectOfType(typeof(MatchController)) as MatchController;
-
-            if (_Controller == null) {
-                Debug.LogError("Could not find a MatchController in the scene");
-            }
-        }
+        protected abstract void Init();
     }
 }
