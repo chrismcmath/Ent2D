@@ -40,5 +40,15 @@ namespace Ent2D.Utils {
             }
             return component;
         }
+
+        public static T GetComponentInDirectChildren<T>(this GameObject go) where T : MonoBehaviour {
+            foreach (Transform t in go.transform) {
+                T c = t.GetComponent<T>();
+                if (c != null) {
+                    return c;
+                }
+            }
+            return null;
+        }
     }
 }

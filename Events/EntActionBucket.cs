@@ -9,8 +9,6 @@ using Ent2D.Utils;
 
 namespace Ent2D.Events {
     public class EntActionBucket : MonoBehaviour {
-        public string EventKey;
-
         private List<EntAction> _Actions = new List<EntAction>();
         public List<EntAction> Actions {
             get { return _Actions; }

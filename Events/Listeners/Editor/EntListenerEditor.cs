@@ -12,7 +12,7 @@ namespace Ent2D.Events.Listeners {
             base.OnInspectorGUI();
 
             EntListener listener = (EntListener) target;
-            listener.CheckModel();
+            listener.EnsureModel();
         }
     }
 }

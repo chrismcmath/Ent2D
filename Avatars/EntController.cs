@@ -93,13 +93,19 @@ namespace Ent2D {
             }
         }
 
-        private List<EntListener> _Listeners =
-            new List<EntListener>();
+        private List<EntListener> _Listeners;
+        public List<EntListener> Listeners {
+            get {
+                if (_Listeners == null) {
+                    _Listeners = new List<EntListener>();
+                    _Listeners.AddRange(GetComponentsInChildren<EntListener>());
+                }
+                return _Listeners;
+            }
+        }
 
         public void Start() {
             LoadInitialBehaviour();
-
-            _Listeners.AddRange(GetComponentsInChildren<EntListener>());
 
             //TODO: Should be set elsewhere
             GetComponent<Rigidbody2D>().mass = Config.Mass;
@@ -151,7 +157,7 @@ namespace Ent2D {
         }
 
         public void FireEvent(string key) {
-            foreach (EntListener listener in _Listeners) {
+            foreach (EntListener listener in Listeners) {
                 listener.OnEvent(key);
             }
         }

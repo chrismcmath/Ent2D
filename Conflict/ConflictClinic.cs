@@ -8,6 +8,8 @@ using Ent2D.Utils;
 
 namespace Ent2D.Conflict {
     public static class ConflictClinic {
+        public static bool Logging = false;
+
         public static List<BattleConflict> _Conflicts = new List<BattleConflict>();
         public static List<BattleConflictResolution> _Resolutions = new List<BattleConflictResolution>();
 
@@ -21,31 +23,37 @@ namespace Ent2D.Conflict {
                 EntUtils.ColliderType typeA,
                 EntUtils.ColliderType typeB) {
 
-            Debug.LogFormat("[CONFLICT] Attempt to register\n{0}{1}{2} ({3}{4}{5}) - {6}{7}{8} ({9}{10}{11})",
-                    LOG_CONTROLLER_PREFIX, contA.name, LOG_CONTROLLER_SUFFIX,
-                    LOG_BEHAVIOUR_PREFIX, typeA, LOG_BEHAVIOUR_SUFFIX,
-                    LOG_CONTROLLER_PREFIX, contB.name, LOG_CONTROLLER_SUFFIX,
-                    LOG_BEHAVIOUR_PREFIX, typeB, LOG_BEHAVIOUR_SUFFIX
-                    );
+            if (Logging) {
+                Debug.LogFormat("[CONFLICT] Attempt to register\n{0}{1}{2} ({3}{4}{5}) - {6}{7}{8} ({9}{10}{11})",
+                        LOG_CONTROLLER_PREFIX, contA.name, LOG_CONTROLLER_SUFFIX,
+                        LOG_BEHAVIOUR_PREFIX, typeA, LOG_BEHAVIOUR_SUFFIX,
+                        LOG_CONTROLLER_PREFIX, contB.name, LOG_CONTROLLER_SUFFIX,
+                        LOG_BEHAVIOUR_PREFIX, typeB, LOG_BEHAVIOUR_SUFFIX
+                        );
+            }
 
             BattleConflict conflict = new BattleConflict(contA, contB, typeA, typeB);
             if (!CollectionUtils.Contains(_Conflicts, conflict)) {
                 _Conflicts.Add(new BattleConflict(contA, contB, typeA, typeB));
-                Debug.Log("[CONFLICT] accepted count now " + _Conflicts.Count);
-            } else {
+                if (Logging) {
+                    Debug.Log("[CONFLICT] accepted count now " + _Conflicts.Count);
+                }
+            } else if (Logging) {
                 Debug.Log("[CONFLICT] rejected");
             }
         }
 
         public static void ResolveConflicts() {
-            if (_Conflicts.Count > 0) {
+            if (_Conflicts.Count > 0 && Logging) {
                 Debug.Log("---------- resolving "  + _Conflicts.Count + " conflicts ----------");
-                //PrintAllConflicts();
+                PrintAllConflicts();
             }
 
             foreach (BattleConflict conflict in _Conflicts) {
-                Debug.Log("------ resolving conflict ------");
-                conflict.Print();
+                if (Logging) {
+                    Debug.Log("------ resolving conflict ------");
+                    conflict.Print();
+                }
 
                 BattleConflictAgitator winner = conflict.Winner;
                 if (winner != null) {
@@ -59,13 +67,13 @@ namespace Ent2D.Conflict {
                                 conflict));
                 } else {
                     /* need to refactor
-                    foreach (BattleConflictAgitator agitator in conflict.Agitators) {
-                        _Resolutions.Add(
-                                new BattleConflictResolution(agitator.Agitator,
-                                    BattleConflictResolution.Result.DRAW,
-                                    conflict));
-                    }
-                    */
+                       foreach (BattleConflictAgitator agitator in conflict.Agitators) {
+                       _Resolutions.Add(
+                       new BattleConflictResolution(agitator.Agitator,
+                       BattleConflictResolution.Result.DRAW,
+                       conflict));
+                       }
+                       */
                 }
             }
 
@@ -151,13 +159,19 @@ namespace Ent2D.Conflict {
         }
 
         private static void Win(EntController winner) {
-            Debug.Log("------ winner: + " + winner.name + " ------");
+            if (Logging) {
+                Debug.Log("------ winner: + " + winner.name + " ------");
+            }
         }
         private static void Lose(EntController loser, EntController winner) {
-            Debug.Log("------ loser: + " + loser.name + " ------");
+            if (Logging) {
+                Debug.Log("------ loser: + " + loser.name + " ------");
+            }
         }
         private static void Draw(EntController stalemate) {
-            Debug.Log("------ stalemate: + " + stalemate.name + " ------");
+            if (Logging) {
+                Debug.Log("------ stalemate: + " + stalemate.name + " ------");
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
@@ -23,8 +24,6 @@ namespace Ent2D.Events {
 
         public void AddBucket(string eventKey) {
             Transform childT = UnityUtils.CreateEmptyChild(eventKey, transform, true);
-
-            childT.gameObject.AddComponent<EntActionBucket>().EventKey = eventKey;
         }
 
         public void Load() {
@@ -33,8 +32,16 @@ namespace Ent2D.Events {
 
             foreach (EntActionBucket bucket in buckets) {
                 bucket.Load();
-                _Buckets.Add(bucket.EventKey, bucket);
+                _Buckets.Add(bucket.name, bucket);
             }
+        }
+
+        public string ListEvents() {
+            string s = "";
+            foreach (string evtKey in _Buckets.Keys.ToList()) {
+                s += string.Format("{0}, ", evtKey);
+            }
+            return s;
         }
     }
 }

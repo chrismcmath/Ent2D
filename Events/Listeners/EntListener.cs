@@ -9,29 +9,30 @@ using Ent2D.Utils;
 
 namespace Ent2D.Events.Listeners {
     public abstract class EntListener : MonoBehaviour {
-        [SerializeField]
         private EntActionModel _ActionModel;
-
-        public void Start() {
-            CheckModel();
-            _ActionModel.Load();
+        public EntActionModel ActionModel {
+            get {
+                if (_ActionModel == null) {
+                    _ActionModel = gameObject.GetComponentInDirectChildren<EntActionModel>();
+                    if (_ActionModel == null) {
+                        _ActionModel = CreateActionModel();
+                    }
+                    _ActionModel.Load();
+                }
+                return _ActionModel;
+            }
         }
 
-        public void CheckModel() {
-            if (_ActionModel == null) {
-                _ActionModel = GetComponentInChildren<EntActionModel>();
-            }
-            if (_ActionModel == null) {
+        public void EnsureModel() {
+            if (gameObject.GetComponentInDirectChildren<EntActionModel>() == null) {
                 CreateActionModel();
             }
         }
 
         public void OnEvent(string evtKey) {
-            CheckModel();
-
             string santisedKey = EntUtils.SanitiseEventKey(evtKey);
-            if (_ActionModel.ContainsKey(santisedKey)) {
-                foreach (EntAction action in _ActionModel[santisedKey]) {
+            if (ActionModel.ContainsKey(santisedKey)) {
+                foreach (EntAction action in ActionModel[santisedKey]) {
                     OnAction(action);
                 }
             }
@@ -40,12 +41,10 @@ namespace Ent2D.Events.Listeners {
         public abstract Type GetActionType();
         protected abstract void OnAction(EntAction action);
 
-        private void CreateActionModel() {
-            if (_ActionModel != null) return;
-
+        private EntActionModel CreateActionModel() {
             Transform childT = UnityUtils.CreateEmptyChild(
                     string.Format("{0} Actions", name), transform, true);
-            _ActionModel = childT.gameObject.AddComponent<EntActionModel>();
+            return childT.gameObject.AddComponent<EntActionModel>();
         }
     }
 }
