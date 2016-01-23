@@ -1,0 +1,3 @@
+[submodule "Submodules/JSONObject"]
+	path = Submodules/JSONObject
+	url = git@github.com:mtschoen/JSONObject.git
