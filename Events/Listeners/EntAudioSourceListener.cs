@@ -21,19 +21,20 @@ namespace Ent2D.Events.Listeners {
 
         protected override void OnAction(EntAction action) {
             EntAudioSourceAction audioAction = (EntAudioSourceAction) action;
-            Play(audioAction);
+            TryPlay(audioAction);
         }
 
-        public void Play(EntAudioSourceAction action) {
-            Play(action.GetClip(),
+        public void TryPlay(EntAudioSourceAction action) {
+            TryPlay(action.GetClip(),
                     action.Loop,
-                    action.Interruptible,
+                    action.Force,
                     action.Pitch);
         }
 
-        public void Play(AudioClip clip,
+        public void TryPlay(AudioClip clip,
                 bool loop = false,
-                bool interruptible = true,
+                bool force = true,
+                float volume = 1f,
                 float pitch = 1f) {
 
             if (clip == null) {
@@ -42,34 +43,20 @@ namespace Ent2D.Events.Listeners {
             }
 
             if (!_AudioSource.isPlaying
-                    || (clip != _AudioSource.clip && interruptible)) {
-                _AudioSource.Stop();
-                _AudioSource.clip = clip;
-                _AudioSource.Play();
+                    || (clip != _AudioSource.clip && force)) {
+                Play(clip, loop, volume, pitch);
             }
-
-            _AudioSource.loop = loop;
-            _AudioSource.pitch = pitch;
         }
 
-        /*
-        public void Play(string state,
-                string folderFormat,
-                bool loop = false,
-                bool interruptible = true,
-                float pitch = 1f) {
+        private void Play(AudioClip clip, bool loop, float volume, float pitch) {
+            _AudioSource.Stop();
 
-            AudioClip clip = GetClip(state, folderFormat);
-            if (!_AudioSource.isPlaying
-                    || (clip != _AudioSource.clip && interruptible)) {
-                _AudioSource.Stop();
-                _AudioSource.clip = GetClip(state, folderFormat);
-                _AudioSource.Play();
-            }
-
+            _AudioSource.clip = clip;
+            _AudioSource.volume = volume;
             _AudioSource.loop = loop;
             _AudioSource.pitch = pitch;
+
+            _AudioSource.Play();
         }
-        */
     }
 }

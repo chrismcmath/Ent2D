@@ -9,7 +9,8 @@ namespace Ent2D.Events.Actions {
         public List<AudioClip> Sounds = new List<AudioClip>();
         public CycleMethod Cycle = CycleMethod.QUEUE;
         public bool Loop = false;
-        public bool Interruptible = false;
+        public bool Force = true;
+        public float Volume = 1f;
 
         [SerializeField]
         private float _Pitch = 1f;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using Ent2D.Camera;
 using Ent2D.Config;
 using Ent2D.Conflict;
 using Ent2D.Events;
@@ -109,6 +110,12 @@ namespace Ent2D {
 
             //TODO: Should be set elsewhere
             GetComponent<Rigidbody2D>().mass = Config.Mass;
+
+            MatchCameraController.GetPointsOfInterest += AppendPosition;
+        }
+
+        public void OnDestroy() {
+            MatchCameraController.GetPointsOfInterest -= AppendPosition;
         }
 
         public void Update() {
@@ -160,6 +167,10 @@ namespace Ent2D {
             foreach (EntListener listener in Listeners) {
                 listener.OnEvent(key);
             }
+        }
+
+        private void AppendPosition(List<Vector2> positions) {
+            positions.Add(transform.position);
         }
 
         private void LoadConfig() {

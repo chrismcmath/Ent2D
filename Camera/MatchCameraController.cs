@@ -16,6 +16,9 @@ namespace Ent2D.Camera {
             get { return _Distance; }
         }
 
+        public delegate void PointOfInterestGetter(List<Vector2> positions);
+        public static event PointOfInterestGetter GetPointsOfInterest;
+
         private MatchContext _Context;
         private UnityEngine.Camera _Camera;
         private List<Vector2> _PointsOfInterest = new List<Vector2>();
@@ -32,15 +35,17 @@ namespace Ent2D.Camera {
 
         public void Update() {
             if (_Context.MatchInProgress) {
-                GetPointsOfInterest();
+                UpdateCameraPosition();
             }
         }
 
-        private void GetPointsOfInterest() {
-            _PointsOfInterest = new List<Vector2>();
+        private void UpdateCameraPosition() {
+            List<Vector2> positions = new List<Vector2>();
+            GetPointsOfInterest(positions);
 
-            foreach (EntController cont in Controller.Avatars) {
-                _PointsOfInterest.Add(BoundPoint(cont.transform.position));
+            _PointsOfInterest.Clear(); 
+            foreach (Vector2 p in positions) {
+                _PointsOfInterest.Add(BoundPoint(p));
             }
 
             Bounds poiBounds = GetBoundsFromPointsOfInterest();
