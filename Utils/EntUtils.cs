@@ -40,7 +40,7 @@ namespace Ent2D.Utils {
         public static Vector2 GetForwardVector(EntController cont) {
             Vector2 forwardVector = cont.transform.localRotation * Vector2.right;
             Vector2 calcVector = cont.FacingRight() ? forwardVector : -1 * forwardVector;
-            return calcVector;
+            return calcVector.normalized;
         }
 
         public static Vector2 GetUpVector(EntController cont) {
