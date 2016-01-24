@@ -16,7 +16,8 @@ namespace Ent2D.Utils {
         }
 
         //NOTE: Keyboard controls for debugging
-        public const int KEYBOARD_PLAYER = 1;
+        public static int KeyboardPlayerID = 1;
+
         public const string KEYBOARD_ACTION_1_KEY = "space";
         public const string KEYBOARD_ACTION_2_KEY = "f";
         public const string KEYBOARD_HORIZONTAL_AXIS = "Horizontal";
@@ -44,7 +45,7 @@ namespace Ent2D.Utils {
             return Action1((int) playerNumber);
         }
         public static bool Action1(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKey(KEYBOARD_ACTION_1_KEY)) {
                     return true;
                 }
@@ -62,7 +63,7 @@ namespace Ent2D.Utils {
             return Action1Down((int) playerNumber);
         }
         public static bool Action1Down(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKeyDown(KEYBOARD_ACTION_1_KEY)) {
                     return true;
                 }
@@ -80,7 +81,7 @@ namespace Ent2D.Utils {
             return Action1Up((int) playerNumber);
         }
         public static bool Action1Up(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKeyUp(KEYBOARD_ACTION_1_KEY)) {
                     return true;
                 }
@@ -98,7 +99,7 @@ namespace Ent2D.Utils {
             return Action2((int) playerNumber);
         }
         public static bool Action2(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKey(KEYBOARD_ACTION_2_KEY)) {
                     return true;
                 }
@@ -116,7 +117,7 @@ namespace Ent2D.Utils {
             return Action2Down((int) playerNumber);
         }
         public static bool Action2Down(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKeyDown(KEYBOARD_ACTION_2_KEY)) {
                     return true;
                 }
@@ -134,7 +135,7 @@ namespace Ent2D.Utils {
             return Action2Up((int) playerNumber);
         }
         public static bool Action2Up(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 if (Input.GetKeyUp(KEYBOARD_ACTION_2_KEY)) {
                     return true;
                 }
@@ -164,7 +165,7 @@ namespace Ent2D.Utils {
             return LeftStickHorizontal((int) playerNumber);
         }
         public static float LeftStickHorizontal(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 return Input.GetAxis(KEYBOARD_HORIZONTAL_AXIS);
             }
 
@@ -175,7 +176,7 @@ namespace Ent2D.Utils {
             return LeftStickVertical((int) playerNumber);
         }
         public static float LeftStickVertical(int playerID) {
-            if (playerID == KEYBOARD_PLAYER) {
+            if (playerID == KeyboardPlayerID) {
                 return Input.GetAxis(KEYBOARD_VERTICAL_AXIS);
             }
 
