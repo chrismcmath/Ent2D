@@ -24,6 +24,7 @@ namespace Ent2D.Events {
 
         public void AddBucket(string eventKey) {
             Transform childT = UnityUtils.CreateEmptyChild(eventKey, transform, true);
+            childT.gameObject.AddComponent<EntActionBucket>();
         }
 
         public void Load() {

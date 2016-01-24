@@ -18,7 +18,11 @@ namespace Ent2D.Events {
             NewBucketName = EntUtils.SanitiseEventKey(
                     EditorGUILayout.TextField("Event Key", NewBucketName));
             if(GUILayout.Button("Add Bucket")) {
-                actionModel.AddBucket(NewBucketName);
+                if (!string.IsNullOrEmpty(NewBucketName)) {
+                    actionModel.AddBucket(NewBucketName);
+                } else {
+                    Debug.LogErrorFormat("[Ent2D] Bucket keys cannot be empty");
+                }
             }
         }
     }

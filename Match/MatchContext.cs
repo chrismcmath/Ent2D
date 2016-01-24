@@ -10,7 +10,7 @@ namespace Ent2D.Match {
 
         public List<ControllerUtils.PlayerNumbers> PlayerNumbers = new List<ControllerUtils.PlayerNumbers>(); 
         public bool MatchInProgress = false;
-        public string MapName = "TestMap01";
+        public string MapName;
         public int PlayerCount {
             get {
                 return PlayerNumbers.Count;
