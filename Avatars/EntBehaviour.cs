@@ -5,6 +5,7 @@ using UnityEngine;
 
 using Ent2D.Config;
 using Ent2D.Conflict;
+using Ent2D.Events;
 using Ent2D.Utils;
 
 namespace Ent2D {
@@ -80,6 +81,7 @@ namespace Ent2D {
                 return;
             }
 
+            FireEvent(EventUtils.EVENT_INIT);
             _Initted = true;
         }
 

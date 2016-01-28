@@ -53,6 +53,12 @@ namespace Ent2D.Camera {
             GL.PopMatrix();
         }
 
+        private void OnDrawGizmos() {
+            Bounds gridBounds = _Camera.orthographic ?
+                GetOrthographicGridBounds() : GetPerspectiveGridBounds();
+
+            //DebugUtils.DrawBounds(gridBounds);
+        }
 
         private void DrawGrid() {
             Vector2 naturalOffset = new Vector2(GridSize.x / 2f, GridSize.y / 2f);
@@ -62,32 +68,23 @@ namespace Ent2D.Camera {
             Bounds gridBounds = _Camera.orthographic ?
                 GetOrthographicGridBounds() : GetPerspectiveGridBounds();
 
-            //DebugUtils.DrawBounds(gridBounds);
-
-            Vector2 center = new Vector2(
-                    Mathf.Floor(gridBounds.center.x / Mathf.Max(GridSize.x, 0.00001f)),
-                    Mathf.Floor(gridBounds.center.y / Mathf.Max(GridSize.y, 0.00001f)))
-                + naturalOffset;
-
             Vector2 offset = new Vector2(
                     _Camera.transform.position.x % GridSize.x,
                     _Camera.transform.position.y % GridSize.y);
             offset += naturalOffset;
 
             GL.Color(HorizontalLineColor);
-
-            //Debug.LogFormat("offset.x: {0}", offset.x);
-            //float x = Mathf.Ceil(gridBounds.size.x / GridSize.x);
-            //Debug.LogFormat("start x: {0}, size: {1}", x, gridBounds.size.x);
-            for (float x = 0f; x <= gridBounds.size.x; x += GridSize.x) {
-                DrawHorizontalLine((x - offset.x) / gridBounds.size.x, 0, 1);
+            float midX = gridBounds.size.x / 2f;
+            for (float x = 0f; x <= midX; x += GridSize.x) {
+                DrawHorizontalLine((midX + x - offset.x) / gridBounds.size.x, 0, 1);
+                DrawHorizontalLine((midX - x - offset.x) / gridBounds.size.x, 0, 1);
             }
 
             GL.Color(VerticalLineColor);
-            //float y = Mathf.Ceil((gridBounds.size.y * -0.5f) / GridSize.y);
-            for (float y = 0f; y <= gridBounds.size.y; y += GridSize.y) {
-                //DrawVerticalLine(0, 1, ((center.y + y) + (gridBounds.size.y / 2f)) / gridBounds.size.y);
-                DrawVerticalLine(0, 1, (y - offset.y) / gridBounds.size.y);
+            float midY = gridBounds.size.y / 2f;
+            for (float y = 0f; y <= midY; y += GridSize.y) {
+                DrawVerticalLine(0, 1, (midY + y - offset.y) / gridBounds.size.y);
+                DrawVerticalLine(0, 1, (midY - y - offset.y) / gridBounds.size.y);
             }
         }
 
@@ -109,7 +106,6 @@ namespace Ent2D.Camera {
         }
 
         private void DrawHorizontalLine(float x, float startY, float endY) {
-            //Debug.LogFormat("x: {0}", x);
             GL.Begin(GL.LINES);
             SetPoint(x, startY);
             SetPoint(x, endY);

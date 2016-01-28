@@ -5,6 +5,7 @@ using Ent2D;
 
 namespace Ent2D.Events {
     public static class EventUtils {
+        public const string EVENT_INIT = "INIT";
         public const string EVENT_SWITCH_IN_FORMAT = "ON_SWITCH_IN_{0}";
         public const string EVENT_SWITCH_OUT_FORMAT = "ON_SWITCH_OUT_{0}";
 

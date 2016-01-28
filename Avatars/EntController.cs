@@ -169,7 +169,7 @@ namespace Ent2D {
             }
         }
 
-        private void AppendPosition(List<Vector2> positions) {
+        protected virtual void AppendPosition(List<Vector2> positions) {
             positions.Add(transform.position);
         }
 
