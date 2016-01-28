@@ -53,13 +53,6 @@ namespace Ent2D.Camera {
             GL.PopMatrix();
         }
 
-        private void OnDrawGizmos() {
-            Bounds gridBounds = _Camera.orthographic ?
-                GetOrthographicGridBounds() : GetPerspectiveGridBounds();
-
-            //DebugUtils.DrawBounds(gridBounds);
-        }
-
         private void DrawGrid() {
             Vector2 naturalOffset = new Vector2(GridSize.x / 2f, GridSize.y / 2f);
             naturalOffset += Offset;

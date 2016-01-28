@@ -6,6 +6,7 @@ using UnityEngine;
 using Ent2D.Config;
 using Ent2D.Conflict;
 using Ent2D.Events;
+using Ent2D.Physics;
 using Ent2D.Utils;
 
 namespace Ent2D {
@@ -17,6 +18,29 @@ namespace Ent2D {
                     _Config = Controller.Config;
                 }
                 return _Config;
+            }
+        }
+
+        public Vector2 Drag {
+            get {
+                return new Vector2(50f, 0f);
+            }
+        }
+
+        public Vector2 Gravity {
+            get {
+                EntGravitator g = FindObjectOfType(typeof(EntGravitator)) as EntGravitator;
+                if (g == null) {
+                    return Physics2D.gravity;
+                } else {
+                    return (g.transform.position - transform.position).normalized * Physics2D.gravity.magnitude;
+                }
+            }
+        }
+
+        public Vector2 Forward {
+            get {
+                return EntUtils.GetForwardVector(Controller);
             }
         }
 
@@ -97,6 +121,17 @@ namespace Ent2D {
             if (!_SwitchedOut) {
                 UpdateRigidbody();
             }
+
+            //NOTE: Gravity
+            Rigidbody.AddForce(Gravity * Time.fixedDeltaTime, ForceMode2D.Impulse);
+
+            //NOTE: Drag
+            //TODO: needs to be rotated to current orientation
+            Rigidbody.velocity = new Vector2(
+                    Rigidbody.velocity.x /
+                    (1f + Mathf.Abs(Drag.x * Time.fixedDeltaTime)),
+                    Rigidbody.velocity.y /
+                    (1f + Mathf.Abs(Drag.y * Time.fixedDeltaTime)));
         }
 
         public virtual bool ResolveConflictTie(EntBehaviour a, EntBehaviour b) {
